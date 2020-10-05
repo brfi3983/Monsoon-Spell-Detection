@@ -1,0 +1,67 @@
+def FNN_model(X):
+
+	#=====================================
+	# Model Structure
+	inputs = Input(shape=(X.shape[1], 1))
+	flat_lay = Flatten()(inputs)
+
+	lay_1 = Dense(64, activation="tanh")(flat_lay)  # kernel_regularizer = l2(0.01)
+	drop_1 = Dropout(0.4)(lay_1)
+	lay_2 = Dense(64, activation="tanh")(drop_1)
+	output = Dropout(0.4)(lay_2)
+
+	model = Model(inputs=inputs, outputs=output)
+
+	return model
+
+# ===================================================================================================================
+# function: train the CNN model for the classification task
+def CNN_model(x_train):
+
+	# Model
+	inputs = Input(shape=x_train.shape[1:])
+	conv1 = Conv2D(filters=64, kernel_size=(3, 3),
+				   data_format='channels_first')(inputs)
+	pool1 = MaxPooling2D(pool_size=(2, 2), data_format='channels_first')(conv1)
+	drop1 = Dropout(0.6)(pool1)
+
+	conv2 = Conv2D(filters=32, kernel_size=(3, 3),
+				   data_format='channels_first')(drop1)
+	pool2 = MaxPooling2D(pool_size=(2, 2), data_format='channels_first')(conv2)
+	drop1 = Dropout(0.6)(pool2)
+
+	flat = Flatten()(drop1)
+	# model.add(Dense(64, activation='relu'))
+	# 32?
+	dense1 = Dense(64, activation='relu')(flat)
+	output = BatchNormalization(axis = 1)(dense1)
+	model = Model(inputs=inputs, outputs=output)
+	
+	'''
+	Batch Normalize?
+	'''
+
+	return model
+
+# =====================================================================================================
+
+
+def CombinedModel(Cnn_model, Fnn_model, x_train, y_train, x_train_rain, x_valid, x_valid_rain, y_valid, lr, bs):
+
+	#Concatinating the layer from the FNN
+	CombinedInput = concatenate([Cnn_model.output, Fnn_model.output])
+
+	dense1 = Dense(16, activation='relu')(CombinedInput)
+	output = Dense(3, activation='softmax')(dense1)
+
+	model = Model(inputs=[Cnn_model.input, Fnn_model.input], outputs=output)
+
+	opt = Adam(lr=lr)
+	model.compile(
+		optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+	model.summary()
+	history = model.fit([x_train,x_train_rain], y_train, batch_size=bs,  epochs=300, validation_data=([
+		x_valid, x_valid_rain], y_valid), verbose=2)  # ,class_weight='auto')
+
+	return [model, history]

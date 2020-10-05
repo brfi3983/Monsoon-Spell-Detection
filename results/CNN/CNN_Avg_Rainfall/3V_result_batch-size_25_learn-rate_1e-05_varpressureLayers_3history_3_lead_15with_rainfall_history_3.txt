@@ -1,0 +1,3 @@
+
+Mean Squred Error:
+0.865771302097293

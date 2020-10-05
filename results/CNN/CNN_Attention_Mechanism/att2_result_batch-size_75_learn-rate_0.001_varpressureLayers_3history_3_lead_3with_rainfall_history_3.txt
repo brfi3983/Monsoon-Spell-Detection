@@ -1,0 +1,24 @@
+
+Classification report:
+              precision    recall  f1-score   support
+
+         0.0       0.92      0.82      0.87       781
+         1.0       0.79      0.85      0.82       781
+         2.0       0.83      0.86      0.84       781
+
+    accuracy                           0.84      2343
+   macro avg       0.85      0.84      0.84      2343
+weighted avg       0.85      0.84      0.84      2343
+
+
+Confusion matrix:
+[[638,  76,  67],
+ [ 42, 665,  74],
+ [ 10, 102, 669]]
+
+Balanced accuracy score:0.841655996585574
+
+Accuracy:0.841655996585574
+
+dense0 = Dense(400, activation = 'linear')(concat)
+dense0 = Dense(n_hist_kernel, activation = 'tanh')(dense0)

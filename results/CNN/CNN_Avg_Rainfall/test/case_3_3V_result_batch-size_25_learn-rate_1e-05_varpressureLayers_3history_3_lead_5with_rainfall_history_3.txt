@@ -1,0 +1,6 @@
+
+Mean Squred Error:
+0.6041049748080184
+
+Pearson Coefficient:
+0.34280979157511937
