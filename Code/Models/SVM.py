@@ -110,20 +110,18 @@ def main():
     climate_data = pd.read_csv(".././DataSets/Lead_10_Hist.csv")
     climate_data = np.asarray(climate_data)
     end_col = climate_data.shape[1]
-    print(climate_data.shape)
 
     #---------------------------------------------
     #segregating the predictand and predictors
     X = climate_data[:,:end_col-1]
     Y = climate_data[:,end_col-1]
-    # print(X.shape, Y.shape)
 
     #----------------------------------------------
     # checking the number of samples for each class
     print("\nSamples of each rainfall class in overall set: ", collections.Counter(Y))
 
     #------------------------------------------------------------------
-    # didiving into training and test set
+    # dividing into training and test set
     X_train, X_test, Y_train, Y_test = train_test_split(X,Y,test_size = 0.2, shuffle=False)
     print("\nSamples in training set: ", collections.Counter(Y_train))
 
@@ -132,8 +130,8 @@ def main():
     #resampling should be done over the training set and test set should be put away from it
 
     # #method 1: SMOTE
-    # X_resampled1, Y_resampled1 = SMOTE().fit_resample(X_train, Y_train)
-    # print("\nSMOTE:", sorted(collections.Counter(Y_resampled1).items()))
+    X_resampled1, Y_resampled1 = SMOTE().fit_resample(X_train, Y_train)
+    print("\nSMOTE:", sorted(collections.Counter(Y_resampled1).items()))
 
     #method 2: ADASYN
     X_resampled2, Y_resampled2 = ADASYN().fit_resample(X_train, Y_train)

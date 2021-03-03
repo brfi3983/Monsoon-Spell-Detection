@@ -1,7 +1,5 @@
 # ======================================================================================================================
 import numpy as np
-# import pandas as pd
-# import collections
 from sklearn.model_selection import train_test_split
 from sklearn.utils import class_weight
 from keras.models import Sequential
@@ -60,7 +58,6 @@ def predictToNumeric(pred):
 		else:
 			continue
 	pred_numeric = np.asarray(pred_numeric)
-	print(pred.shape, pred_numeric.shape)
 
 	return pred_numeric
 
@@ -97,7 +94,6 @@ def createDataSetWithLeadandHistory(Dataset, Labels, lead, hist):
 	for i in range(1, hist):
 		climate_data_hist = np.roll(Dataset, i, axis=0)
 		climate_data_new = np.concatenate((climate_data_new, climate_data_hist), axis=1)
-	print(climate_data_new.shape)
 
 	# Creating Lead Dataset, the rainfall label are rolled up by lead
 	Labels = np.asarray(Labels)
@@ -281,7 +277,6 @@ def addGaussianNoise(X_imgs, sample):
 
 	return gaussian_noise_imgs
 
-
 # ====================================================================================================================
 # technique 3: flipping the image up-down or left-right
 def addFlipImage(X_imgs, sample):
@@ -307,7 +302,6 @@ def addFlipImage(X_imgs, sample):
 
 	return flip_imgs
 
-
 # ====================================================================================================================
 # technique 4: rotating the image with angles
 def addRotateImage(X_imgs, sample):
@@ -331,9 +325,7 @@ def addRotateImage(X_imgs, sample):
 
 	return rotate_imgs
 
-
-# ====================================================================================================================
-# technique 5: scalling the image with angles
+# technique 5: scaling the image with angles
 def addScaleImage(X_imgs, sample):
 	scale_imgs = []
 	row, col, channels = X_imgs[0].shape
@@ -486,13 +478,10 @@ def addSamplesToBalanceClasses(c0, c1, c2, max_sample, x0, x1, x2):
 	y1_added = np.asarray(y1_added)
 	y2_added = np.asarray(y2_added)
 
-	print(x0_added.shape, x1_added.shape)
-	print(y0_added.shape, y1_added.shape)
 	x_added = np.concatenate((x0_added, x1_added, x2_added), axis=0)
 	y_added = np.concatenate((y0_added, y1_added, y2_added), axis=0)
 
 	return [x_added, y_added]
-
 
 # ====================================================================================================================
 # function: concatenate equal samples from each class to prepare the final dataset
@@ -547,7 +536,7 @@ def augmentAndShuffle(x_old, y_old, x_added, y_added):
 # ====================================================================================================================
 # function: Balance the dataset by oversampling technique
 def balanceClassesByOversampling(x_train1, x_valid1, x_test1, y_train1, y_valid1, y_test1, sel):
-	# count the instances of each classesu9
+	# count the instances of each classes
 	[c0_tr, c1_tr, c2_tr] = countClasses(y_train1)
 	train_sample = max(c0_tr, c1_tr, c2_tr)
 	[c0_vl, c1_vl, c2_vl] = countClasses(y_valid1)
@@ -560,11 +549,10 @@ def balanceClassesByOversampling(x_train1, x_valid1, x_test1, y_train1, y_valid1
 	[i0_vl, i1_vl, i2_vl] = findClassIndices(y_valid1)
 	[i0_ts, i1_ts, i2_ts] = findClassIndices(y_test1)
 
-	# seperate the samples of each class
+	# separate the samples of each class
 	[x0_tr, x1_tr, x2_tr] = separateSamplesClasswise(x_train1, i0_tr, i1_tr, i2_tr)
 	[x0_vl, x1_vl, x2_vl] = separateSamplesClasswise(x_valid1, i0_vl, i1_vl, i2_vl)
 	[x0_ts, x1_ts, x2_ts] = separateSamplesClasswise(x_test1, i0_ts, i1_ts, i2_ts)
-	# print("first:..",x0_tr.shape, x0_vl.shape, x0_ts.shape)
 
 	# technique to generate the more data by any one of the data augmentation technique
 
@@ -574,31 +562,24 @@ def balanceClassesByOversampling(x_train1, x_valid1, x_test1, y_train1, y_valid1
 																		  c1_vl, c2_vl)
 	[x0_test_new, x1_test_new, x2_test_new] = selectOversamplingMethod(x0_ts, x1_ts, x2_ts, test_sample, sel, c0_ts,
 																	   c1_ts, c2_ts)
-	# print("second:..",x0_train_new.shape, x0_valid_new.shape, x0_test_new.shape)
 
 	# assemble the added classes with class labels
 	[x_train_added, y_train_added] = assembleAddSamplesToBalanceClasses(x0_train_new, x1_train_new, x2_train_new)
 	[x_valid_added, y_valid_added] = assembleAddSamplesToBalanceClasses(x0_valid_new, x1_valid_new, x2_valid_new)
 	[x_test_added, y_test_added] = assembleAddSamplesToBalanceClasses(x0_test_new, x1_test_new, x2_test_new)
-	# print("Third:..", x_train_added.shape, x_valid_added.shape, x_test_added.shape)
 
 	# # making equal number of samples for all the classes in training, valid, and test sets
 	# # [x_train_added, y_train_added] = addSamplesToBalanceClasses(c0_tr, c1_tr, c2_tr, train_sample, x0_train_new, x1_train_new, x2_train_new)
 	# # [x_valid_added, y_valid_added] = addSamplesToBalanceClasses(c0_vl, c1_vl, c2_vl, valid_sample, x0_valid_new, x1_valid_new, x2_valid_new)
 	# # [x_test_added, y_test_added] = addSamplesToBalanceClasses(c0_ts, c1_ts, c2_ts, test_sample, x0_test_new, x1_test_new, x2_test_new)
-	# print("Third:..",x_valid_added.shape, y_valid_added.shape)
 
 	# adding the data augmentation with original data and shuffling them
 
 	[x_train, y_train] = augmentAndShuffle(x_train1, y_train1, x_train_added, y_train_added)
 	[x_valid, y_valid] = augmentAndShuffle(x_valid1, y_valid1, x_valid_added, y_valid_added)
 	[x_test, y_test] = augmentAndShuffle(x_test1, y_test1, x_test_added, y_test_added)
-	# print("Fourth:..\n train set",x_train.shape, y_train.shape)
-	# print("valid set",x_valid.shape, y_valid.shape)
-	# print("test set",x_test.shape, y_test.shape)
 
 	return [x_train, x_valid, x_test, y_train, y_valid, y_test]
-
 
 # ===================================================================================================================
 # function: train the CNN model for the classification task
@@ -629,7 +610,6 @@ def trainCNNModel(x_train, y_train, x_valid, y_valid, bs, lr, epochs):
 
 	return [model, history]
 
-
 # ===================================================================================================================
 # function: plot the model losses for training and validation period
 def plotModelAccuracy(history, filename):
@@ -642,14 +622,6 @@ def plotModelAccuracy(history, filename):
 	plt.legend(['train_loss', 'validation_loss'], loc='upper right')
 	plt.savefig(path + 'results/' + results_folder + '/' + filename + '.png')
 	plt.close()
-	#
-	# plt.title('Model Accuracy')
-	# plt.plot(history.history['acc'], label='training')
-	# plt.plot(history.history['val_acc'], label='validation')
-	# plt.ylabel('Acc')
-	# plt.xlabel('Epoch')
-	# plt.legend()
-	# plt.show()
 
 def NomalizeCmatrixRow(cmatrix):
 	row_sum = cmatrix.sum(axis=1, dtype='float').T
@@ -663,7 +635,7 @@ def modelPerformanceClassificationMetrics(y_test_nor, y_pred_nor, filename, norm
 	file.write("\nClassification report:\n")
 	file.write(classification_report(y_test_nor, y_pred_nor))
 	file.write("\n\nConfusion matrix:\n")
-	
+
 	# Normalizing
 	cmatrix = confusion_matrix(y_test_nor, y_pred_nor)
 	if normflag == 1:
@@ -699,7 +671,6 @@ def getFromSingleVariable(lead, file_x, file_y, flag_pres):
 	if flag_pres == 1:  # datasets with multiple pressure levels
 		# considering the lowest three levels for air temperature from Earth surface
 		Dataset = Dataset[:, 0:pres_levels, :, :]
-		# print(Dataset.shape)
 	else:  # datasets only with one pressure levels or surface
 		Dataset = Dataset[:, :, :]
 		[r1, r2, r3] = Dataset.shape
@@ -708,8 +679,6 @@ def getFromSingleVariable(lead, file_x, file_y, flag_pres):
 	# Reading the rainfall classes along with added 999 for the lead days
 	# (Before June-- required for adjustment while considering the history)
 	Labels = np.load(path + file_y)
-	# print(Labels.shape)
-	# print(Labels)
 
 	# creating the dataset and labels with lead and history
 	[x, y] = createDataSetWithLeadandHistory(Dataset, Labels, lead, hist)
@@ -721,7 +690,6 @@ def getFromSingleVariable(lead, file_x, file_y, flag_pres):
 def addRainfallHistoryInCNNImage(file_x, row, col, rainfall_hist):
 	# Importing Datasets (in form of image: where the axis corresponds to lattitude and longitude)
 	Dataset = np.load(path + file_x, allow_pickle=True)
-	# print(Dataset.shape)
 
 	newImageDataset = []
 	for elt in Dataset:
@@ -729,12 +697,9 @@ def addRainfallHistoryInCNNImage(file_x, row, col, rainfall_hist):
 		newImageDataset.append(temp)
 
 	newImageDataset = np.asarray(newImageDataset)
-	# print("1.",newImageDataset.shape)
 
 	#putting the channel axis as second instead of last as the others
 	newImageDataset = np.swapaxes(newImageDataset,1,3)
-
-	# print("2.",newImageDataset.shape)
 
 	# adding the history.......
 	climate_data_new = newImageDataset
@@ -752,12 +717,10 @@ def removeGarbageRowsWithRainfall(x, x6, y):
 	# Concatenate Labels and Features
 	# finding the indices corresponding to false rainfall rows(9999)
 	indices = []
-	# selecting the indices whose labels class correspondds to 9999
+	# selecting the indices whose labels class corresponds to 9999
 	for i in range(0, len(y)):
 		if y[i] == 9999:
 			indices.append(i)
-
-	# print("len1:",len(indices))
 
 	#selecting the indices whose rainfall history values coresponds to 9999
 	# (all the row and cols values are same as the same identical value is repeated for creating the whole image)
@@ -770,20 +733,13 @@ def removeGarbageRowsWithRainfall(x, x6, y):
 		if flag == 1:
 			indices.append(i)
 
-	# print("len2:",len(indices))
-
 	indices = np.asarray(indices)
 	indices = np.unique(indices)
 	indices = np.sort(indices)
 
-	# print("len3:",indices.shape[0])
-
-
 	# Delete Images samples and rainfall labels corresponding to false row (9999)
 	x = np.delete(x, indices, axis=0)
 	y = np.delete(y, indices, axis=0)
-
-	# print(x.shape, y.shape)
 
 	return [x, y]
 
@@ -799,16 +755,12 @@ def removeGarbageRows(x, y):
 		if y[i] == 9999:
 			indices.append(i)
 
-	# print("len1:",len(indices))
-
 	indices = np.asarray(indices)
 	indices = np.sort(indices)
 
 	# Delete Images samples and rainfall labels corresponding to false row (9999)
 	x = np.delete(x, indices, axis=0)
 	y = np.delete(y, indices, axis=0)
-
-	# print(x.shape, y.shape)
 
 	return [x, y]
 
@@ -841,9 +793,6 @@ def ImportVariables(lead):
 		y = y3
 		[x, y] = removeGarbageRows(x, y)
 
-	# Interestingly did not work when it was (X, 1), needed to be (X,)
-	# if y.shape[1] == 1:
-	# 	y = np.squeeze(y, axis = 1)
 	return x, y
 def ImportMeanStdCases(y):
 	mean_path = "C:/Users/user/Documents/Personal/Research/MachineLearningClimate19/DataSets/dataset_rainfall/Mean_pentad_longPeriod(1961-1990)_triples_samescale_rainfall.pkl"
@@ -851,13 +800,11 @@ def ImportMeanStdCases(y):
 
 	mean = np.load(mean_path, allow_pickle=True)
 	std = np.load(std_path, allow_pickle=True)
-	
+
 	n = int(len(y) / len(mean))
 	mean = np.tile(mean, n).reshape(len(y), 1)
 	std = np.tile(std, n).reshape(len(y), 1)
 
-	print(y.shape, mean.shape, std.shape)
-	# exit()
 	# check axis operations!!
 	case1 = y
 	case2 = y - mean
@@ -873,7 +820,6 @@ def ChangeCase(y, case_num):
 	elif case_num == 3:
 		result = case3
 
-	print('2:', result.shape)
 	return result
 
 # ======================================================================================================================
@@ -909,13 +855,7 @@ def main():
 		#  running the models for a number of gridSearch variables
 		# applying grid search
 		batch_size = [25]  # , 50, 75, 100, 150, 200]
-		# 30
-		# batch_size = [20]
 		learn_rate = [0.00001]  # , 0.0001]
-		# 1e-6
-		# share target file
-		# run model and get csv for pred | target
-		# learn_rate = [0.0001]
 		# momentum = [0.0, 0.2, 0.4, 0.6, 0.8, 0.9]
 		for bs in batch_size:
 			for lr in learn_rate:

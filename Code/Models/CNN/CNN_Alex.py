@@ -40,7 +40,6 @@ path_cluster = "/projects/mosa2108/Spells_data_results/"
 
 path = path_comp_brandon
 
-
 # =====================================================================================================================
 # function: convert the softmax probability of class to class label
 def predictToNumeric(pred):
@@ -55,7 +54,6 @@ def predictToNumeric(pred):
 		else:
 			continue
 	pred_numeric = np.asarray(pred_numeric)
-	print(pred.shape, pred_numeric.shape)
 
 	return pred_numeric
 
@@ -92,7 +90,6 @@ def createDataSetWithLeadandHistory(Dataset, Labels, lead, hist):
 	for i in range(1, hist):
 		climate_data_hist = np.roll(Dataset, i, axis=0)
 		climate_data_new = np.concatenate((climate_data_new, climate_data_hist), axis=1)
-	print(climate_data_new.shape)
 
 	# Creating Lead Dataset, the rainfall label are rolled up by lead
 	Labels = np.asarray(Labels)
@@ -328,7 +325,7 @@ def addRotateImage(X_imgs, sample):
 
 
 # ====================================================================================================================
-# technique 5: scalling the image with angles
+# technique 5: scaling the image with angles
 def addScaleImage(X_imgs, sample):
 	scale_imgs = []
 	row, col, channels = X_imgs[0].shape
@@ -481,8 +478,6 @@ def addSamplesToBalanceClasses(c0, c1, c2, max_sample, x0, x1, x2):
 	y1_added = np.asarray(y1_added)
 	y2_added = np.asarray(y2_added)
 
-	print(x0_added.shape, x1_added.shape)
-	print(y0_added.shape, y1_added.shape)
 	x_added = np.concatenate((x0_added, x1_added, x2_added), axis=0)
 	y_added = np.concatenate((y0_added, y1_added, y2_added), axis=0)
 
@@ -559,7 +554,6 @@ def balanceClassesByOversampling(x_train1, x_valid1, x_test1, y_train1, y_valid1
 	[x0_tr, x1_tr, x2_tr] = separateSamplesClasswise(x_train1, i0_tr, i1_tr, i2_tr)
 	[x0_vl, x1_vl, x2_vl] = separateSamplesClasswise(x_valid1, i0_vl, i1_vl, i2_vl)
 	[x0_ts, x1_ts, x2_ts] = separateSamplesClasswise(x_test1, i0_ts, i1_ts, i2_ts)
-	# print("first:..",x0_tr.shape, x0_vl.shape, x0_ts.shape)
 
 	# technique to generate the more data by any one of the data augmentation technique
 	[x0_train_new, x1_train_new, x2_train_new] = selectOversamplingMethod(x0_tr, x1_tr, x2_tr, train_sample, sel, c0_tr,
@@ -568,7 +562,6 @@ def balanceClassesByOversampling(x_train1, x_valid1, x_test1, y_train1, y_valid1
 																		  c1_vl, c2_vl)
 	[x0_test_new, x1_test_new, x2_test_new] = selectOversamplingMethod(x0_ts, x1_ts, x2_ts, test_sample, sel, c0_ts,
 																	   c1_ts, c2_ts)
-	# print("second:..",x0_train_new.shape, x0_valid_new.shape, x0_test_new.shape)
 
 	# assemble the added classes with class labels
 	[x_train_added, y_train_added] = assembleAddSamplesToBalanceClasses(x0_train_new, x1_train_new, x2_train_new)
@@ -580,15 +573,11 @@ def balanceClassesByOversampling(x_train1, x_valid1, x_test1, y_train1, y_valid1
 	# # [x_train_added, y_train_added] = addSamplesToBalanceClasses(c0_tr, c1_tr, c2_tr, train_sample, x0_train_new, x1_train_new, x2_train_new)
 	# # [x_valid_added, y_valid_added] = addSamplesToBalanceClasses(c0_vl, c1_vl, c2_vl, valid_sample, x0_valid_new, x1_valid_new, x2_valid_new)
 	# # [x_test_added, y_test_added] = addSamplesToBalanceClasses(c0_ts, c1_ts, c2_ts, test_sample, x0_test_new, x1_test_new, x2_test_new)
-	# print("Third:..",x_valid_added.shape, y_valid_added.shape)
 
 	# adding the data augmentation with original data and shuffling them
 	[x_train, y_train] = augmentAndShuffle(x_train1, y_train1, x_train_added, y_train_added)
 	[x_valid, y_valid] = augmentAndShuffle(x_valid1, y_valid1, x_valid_added, y_valid_added)
 	[x_test, y_test] = augmentAndShuffle(x_test1, y_test1, x_test_added, y_test_added)
-	# print("Fourth:..\n train set",x_train.shape, y_train.shape)
-	# print("valid set",x_valid.shape, y_valid.shape)
-	# print("test set",x_test.shape, y_test.shape)
 
 	return [x_train, x_valid, x_test, y_train, y_valid, y_test]
 
@@ -623,8 +612,6 @@ def trainCNNModelForClassification(x_train, y_train, x_valid, y_valid, bs, lr, e
 	return [model, history]
 
 def CNN_Alex(x_train, y_train, x_valid, y_valid, bs, lr, epochs):
-	print('here',x_train.shape)
-	# exit()
 	#Instantiate an empty model
 	model = Sequential()
 
@@ -638,16 +625,7 @@ def CNN_Alex(x_train, y_train, x_valid, y_valid, bs, lr, epochs):
 	# Max Pooling
 	model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid', data_format='channels_first'))
 
-	# # 3rd Convolutional Layer
-	# model.add(Conv2D(filters=384, kernel_size=(2,2), strides=(1,1), padding='valid', data_format='channels_first', activation='relu'))
-
-	# # 4th Convolutional Layer
-	# model.add(Conv2D(filters=384, kernel_size=(2,2), strides=(1,1), padding='valid', data_format='channels_first', activation='relu'))
-
-	# # 5th Convolutional Layer
-	# model.add(Conv2D(filters=256, kernel_size=(2,2), strides=(1,1), padding='valid', data_format='channels_first', activation='relu'))
-	# # Max Pooling
-	# model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid', data_format='channels_first'))
+	# Note: This is not fully AlexNet as we had overfitting problems; thus, we had to cut some layers.
 
 	# Passing it to a Fully Connected layer
 	model.add(Flatten())
@@ -676,7 +654,7 @@ def CNN_Alex(x_train, y_train, x_valid, y_valid, bs, lr, epochs):
 	# I added class_weight = 'auto' since the data was unbalanced
 	history = model.fit(x_train, y_train, batch_size=bs, epochs=epochs, validation_data=(x_valid, y_valid),
 						verbose=2)
-	
+
 	return [model, history]
 # ===================================================================================================================
 # function: plot the model losses for training and validation period
@@ -690,15 +668,6 @@ def plotModelAccuracy(history, filename):
 	plt.legend(['train_loss', 'validation_loss'], loc='upper right')
 	plt.savefig(path + 'results/CNN/' + filename + '.png')
 	plt.close()
-	#
-	# plt.title('Model Accuracy')
-	# plt.plot(history.history['acc'], label='training')
-	# plt.plot(history.history['val_acc'], label='validation')
-	# plt.ylabel('Acc')
-	# plt.xlabel('Epoch')
-	# plt.legend()
-	# plt.show()
-
 
 # ===================================================================================================================
 # function: providing different classification performance measures
@@ -716,14 +685,13 @@ def modelPerformanceClassificationMetrics(y_test_nor, y_pred_nor, filename):
 
 # ===================================================================================================================
 def getFromSingleVariable(file_x, file_y, flag_pres):
-	# Importing Datasets (in form of image: where the axis corresponds to lattitude and longitude)
+	# Importing Datasets (in form of image: where the axis corresponds to latitude and longitude)
 	Dataset = np.load(path + file_x)
-	print("$$$$$",Dataset.shape)
+	print(f'Dataset Shape: {Dataset.shape}')
 
 	if flag_pres == 1:  # datasets with multiple pressure levels
 		# considering the lowest three levels for air temperature from Earth surface
 		Dataset = Dataset[:, 0:pres_levels, :, :]
-		# print(Dataset.shape)
 	else:  # datasets only with one pressure levels or surface
 		Dataset = Dataset[:, :, :]
 		[r1, r2, r3] = Dataset.shape
@@ -732,8 +700,6 @@ def getFromSingleVariable(file_x, file_y, flag_pres):
 	# Reading the rainfall classes along with added 999 for the lead days
 	# (Before June-- required for adjustment while considering the history)
 	Labels = np.load(path + file_y)
-	# print(Labels.shape)
-	# print(Labels)
 
 	# creating the dataset and labels with lead and history
 	[x, y] = createDataSetWithLeadandHistory(Dataset, Labels, present_lead, hist)
@@ -743,7 +709,8 @@ def getFromSingleVariable(file_x, file_y, flag_pres):
 # ======================================================================================================================
 
 def addRainfallHistoryInCNNImage(file_x, row, col, rainfall_hist):
-	# Importing Datasets (in form of image: where the axis corresponds to lattitude and longitude)
+
+	# Importing Datasets (in form of image: where the axis corresponds to latitude and longitude)
 	Dataset = np.load(path + file_x, allow_pickle=True)
 	# print(Dataset.shape)
 
@@ -753,12 +720,9 @@ def addRainfallHistoryInCNNImage(file_x, row, col, rainfall_hist):
 		newImageDataset.append(temp)
 
 	newImageDataset = np.asarray(newImageDataset)
-	# print("1.",newImageDataset.shape)
 
 	#putting the channel axis as second instead of last as the others
 	newImageDataset = np.swapaxes(newImageDataset,1,3)
-
-	# print("2.",newImageDataset.shape)
 
 	# adding the history.......
 	climate_data_new = newImageDataset
@@ -776,7 +740,7 @@ def removeGarbageRowsWithRainfall(x, x6, y):
 	# Concatenate Labels and Features
 	# finding the indices corresponding to false rainfall rows(9999)
 	indices = []
-	# selecting the indices whose labels class correspondds to 9999
+	# selecting the indices whose labels class corresponds to 9999
 	for i in range(0, len(y)):
 		if y[i] == 9999:
 			indices.append(i)
@@ -818,7 +782,7 @@ def removeGarbageRows(x, y):
 	# Concatenate Labels and Features
 	# finding the indices corresponding to false rainfall rows(9999)
 	indices = []
-	# selecting the indices whose labels class correspondds to 9999
+	# selecting the indices whose labels class corresponds to 9999
 	for i in range(0, len(y)):
 		if y[i] == 9999:
 			indices.append(i)

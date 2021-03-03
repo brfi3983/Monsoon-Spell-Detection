@@ -46,7 +46,6 @@ def addHistoryClimateVariables(climate_data, num_hist_cd):
     for i in range(1, num_hist_cd):
         climate_data_hist = np.roll(climate_data, i, axis=0)
         climate_data_new = np.concatenate((climate_data_new, climate_data_hist), axis=1)
-    print(climate_data_new.shape)
 
     return climate_data_new
 
@@ -57,7 +56,6 @@ def addHistoryRainfall(climate_data_new, rainfall_regress, present_lead, num_his
     for i in range(num_hist_rf):
         rainfall_hist = np.roll(rainfall_regress, (i + present_lead), axis=0)
         climate_data_new = np.concatenate((climate_data_new, rainfall_hist), axis=1)
-    print(climate_data_new.shape)
 
     return climate_data_new
 
@@ -77,7 +75,6 @@ def changeToOneHot(rainfall_class):
             continue
 
     rainfall_onehot = np.asarray(rainfall_onehot)
-    # print(rainfall_class.shape, rainfall_onehot.shape)
 
     return rainfall_onehot
 
@@ -159,8 +156,6 @@ def predictToNumeric(pred):
 
     pred_numeric = np.asarray(pred_numeric)
 
-    print(pred.shape, pred_numeric.shape)
-
     return pred_numeric
 
 # ===================================================================================================================
@@ -180,7 +175,6 @@ def oneHotToNumeric(y_onehot):
 
     y_num =np.asarray(y_num).transpose()
     y_num = np.reshape(y_num, (y_num.shape[0],1))
-    print(y_onehot.shape, y_num.shape)
 
     return y_num
 
@@ -197,14 +191,6 @@ def plotModelAccuracy(history,filename):
     plt.legend(['train_loss', 'validation_loss'], loc='upper right')
     plt.savefig(path+'results/RNN/'+filename+'.png')
     plt.close()
-
-    # plt.title('Model Accuracy')
-    # plt.plot(history.history['acc'], label='training')
-    # plt.plot(history.history['val_acc'], label='validation')
-    # plt.ylabel('Acc')
-    # plt.xlabel('Epoch')
-    # plt.legend()
-    # plt.show()
 
 # ===================================================================================================================
 # function: providing different classification performance measures
@@ -280,10 +266,6 @@ def main():
 
     # add new axis to the data for making it compatible to the Sequential model
     [x_train_new_f, x_valid_new_f, x_test_new_f] = addNewAxis(x_train_new,x_valid_new,x_test_new)
-
-    print(x_test_new_f.shape, y_test_new.shape)
-    print(x_valid_new_f.shape, y_valid_new.shape)
-    print(x_train_new_f.shape, y_train_new.shape)
 
     #  running the models for a number of gridSearch variables
     # applying grid search

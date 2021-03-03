@@ -88,7 +88,7 @@ def Grid2TimeArr(Grid):
 # #================================================
 #Creating rainfall features
 '''
-Note, if you are doing this (history) for Enso/Nino, 
+Note, if you are doing this (history) for Enso/Nino,
 you must take history before upscaling to 8174 format!
 '''
 def CreateHist(Dataset, hist):
@@ -116,11 +116,11 @@ def CreateHist(Dataset, hist):
 	return x
 
 # ==========================================================
-# This function extracts the Nino dataset for our summer months and 
+# This function extracts the Nino dataset for our summer months and
 # upscales them to 8174
 def CreateNinoData(Dataset, hist):
 
-	# Extracting Nino Dataset 
+	# Extracting Nino Dataset
 	Nino = np.asarray(Dataset)
 	month_nino = []
 	i = 0
@@ -219,7 +219,7 @@ def MonthClassDataset(length):
 	for i in range (0,length):
 		month, days = month_class(i)
 		Month_Class_data[i] = month
-	
+
 	Month_Class_data = pd.DataFrame(Month_Class_data)
 	X = pd.get_dummies(Month_Class_data.astype(str))
 
@@ -261,10 +261,8 @@ def FNN_model(X_train, y_train, x_valid, y_valid, bs, lr, ep):
 
 	#=====================================
 	# Model Structure
-	# model = Sequential()
 	inputs = Input(shape=(X_train.shape[1],1))
 	flat_lay = Flatten()(inputs)
-	# model.add(Dropout(0.4))
 
 	lay_1 = Dense(64, activation="tanh")(flat_lay)  # kernel_regularizer = l2(0.01)
 	drop_1 = Dropout(0.4)(lay_1)
@@ -272,14 +270,7 @@ def FNN_model(X_train, y_train, x_valid, y_valid, bs, lr, ep):
 	drop_2 = Dropout(0.4)(lay_2)
 
 	testing = Concatenate()([drop_2, lay_2])
-	
-	# y = model.layers[-1].output
-	# print(x.shape)
-	# model.add(Dropout(0.4))
-	# z = model.layers[-1].output
-	# print(y.shape)
-	# model.pop()
-	# model.add(testing)
+
 	predictions = Dense(3, activation="softmax")(testing)
 	model = Model(inputs=inputs, outputs=predictions)
 	#=====================================
@@ -313,8 +304,6 @@ def PlotModelStats(history, path, filename):
 
 	plt.savefig(path + filename + '.png')
 	plt.close()
-	
-	# plt.show()
 
 # function: providing different classification performance measures
 #===================================================================================================================
@@ -333,7 +322,6 @@ def modelPerformanceClassificationMetrics(y_test_nor, y_pred_nor, path, filename
 
 #=====================================================================================================================
 # function: convert the softmax probability of class to class label
-
 
 def predictToNumeric(pred):
 
@@ -384,7 +372,7 @@ def ExtrCentReg(Data,levels):
 		while j < 8174:
 			Data_new[i,j:(122 + j),:,:] = Data[i,(16 + j):(16 + 122 + j),:,:]
 			j += 122
-	
+
 	#Extracting Lat/Long
 	x = Data_new[:, :, lat_north:lat_south, long_min:long_max]
 
@@ -402,7 +390,7 @@ def ExtractPredictedSamples(y_pred, y_test):
 				max_val = y_pred[i][j]
 				max_ind = j
 		index_flag[i][max_ind] = 1
-	
+
 	# Comparing predicted to test to extract index for incorrect samples
 	same_ind = []
 	diff_ind = []
@@ -411,9 +399,6 @@ def ExtractPredictedSamples(y_pred, y_test):
 			same_ind.append(i)
 		else:
 			diff_ind.append(i)
-	# print('PRED:\n',y_pred,'\nINDEX:\n',index_flag,'\nTEST:\n', y_test)
-	# print('INDEX DIFF\n',diff_ind)
-	# print('\nINDEX SAME\n',same_ind)
 
 	# =================================================================
 	# Creating an array of the differences between the true column and the predicted column
@@ -431,7 +416,7 @@ def ExtractPredictedSamples(y_pred, y_test):
 
 	temp_colns = np.concatenate((pred_colns, true_colns), axis = 1)
 	vals_and_colns = np.concatenate((y_pred, temp_colns), axis = 1)
-	
+
 	# same_arr = np.delete(y_pred, diff_ind, axis = 0)
 	diff_arr = np.asarray(np.delete(vals_and_colns, same_ind, axis = 0))
 
@@ -519,44 +504,17 @@ def main():
 		# Enso = CreateEnsoData(Enso)
 		# Month_classes = MonthClassDataset(8174)
 
-		# history = [3, 4, 5]
-		# batch_size = [15, 25, 100, 150]
+		history = [3, 4, 5]
+		batch_size = [15, 25, 100, 150]
 		bs = 75
 		# learning_rate = [0.00001,0.000001]
 		lr = 0.00001
 		epochs = 30
-		# var_names = ['rain_data_hist', 'Enso', 'Nino_hist', 'Month_classes', 'uwnd', 'vwnd']
-		# for i in range(0,len(history)):
 
-		# 	print('Starting history of ' + str(history[i]) + ' days...')
-			# Nino_hist = CreateNinoData(Nino, history[i])
-			# rain_data_hist = RainFallHistData(rain_data, history[i])
-			# print('\nEnso:', Enso.shape, 'Nino:', Nino_hist.shape, 'Rain:', rain_data_hist.shape, 'Months:', Month_classes.shape)
-			
-			# print(Nino_hist.shape)
-			# exit()
-			# X = [rain_data_hist, Enso, Nino_hist, Month_classes, uwnd, vwnd]
-			# exit()
-			
-			
-			# X = pd.DataFrame(np.concatenate((rain_data_hist, Enso, Nino_hist, Month_classes, uwnd, vwnd), axis=1))
-			# print('X data:', X.shape)
-
-			#Fixing the rollover from one end of year predicting the begining of the next (NOT consistent)
-			#Note, I was not sure how to fix the monthly Nino rollover without reducing the sample size dramatically!
 		lead = 3
 		X, y = FixRollingOverlap(X, rain_class_og, lead)
 
-			# for lr in learning_rate:
-			# for bs in batch_size:
 
-			# for j in range(0,6):
-			# var_num = 0
-			# print('\nStarting variable ' + var_names[var_num] + '...')
-			# var = SelectVariable(var_num, rain_data_hist, Enso, Nino_hist, Month_classes, uwnd, vwnd)
-			# var, y = FixRollingOverlap(var, rain_class_og, lead)
-			
-			# filename = var_names[var_num] + '_' + str(history[i]) + "_hist_" + str(lr) + "_" + str(bs)
 		test_ratio = 0.15
 		X = np.asarray(X)
 		y = np.asarray(y)
@@ -564,9 +522,8 @@ def main():
 		#Loading and fixing data to work with the model
 		[X_train, x_valid, x_test, y_train, y_valid,
 			y_test] = divideIntoSets(X, y, test_ratio)
-		
-		# c1,c2,c3 = countClasses(y_train)
-		# print('classes:',c1,c2,c3)
+
+		c1,c2,c3 = countClasses(y_train)
 
 		#Balancing Data
 		X_train, y_train = SMOTE().fit_resample(X_train, y_train)
@@ -578,7 +535,7 @@ def main():
 		x_valid = x_valid[:, :, np.newaxis]
 		x_test = x_test[:, :, np.newaxis]
 		x_test_over = x_test_over[:, :, np.newaxis]
-		
+
 		#Standarize
 		# X_train, y_train = StandarizeData(X_train), y_train
 
@@ -596,19 +553,15 @@ def main():
 		# PlotModelStats(result, path, filename)
 		# model = load_model('C:/Users/user/Desktop/model_FNN_TEST.h5')
 		model.save('C:/Users/user/Desktop/model_FNN_TEST.h5')
-		exit()
 		y_pred = model.predict(x_test)
-
 		y_pred_over = model.predict(x_test_over)
-		# print('y_pred shape:', y_pred_over.shape)
-		# print('y_pred values',y_pred_over, y_test_over)
+
 		diff = ExtractPredictedSamples(y_pred_over, y_test_over)
-		# print(diff)
 		GraphingDifference(diff)
-		# print('DIFF:', diff)
-		exit()
-		# y_pred_nor = predictToNumeric(y_pred)
-		# y_test_nor = predictToNumeric(y_test)
+
+		y_pred_nor = predictToNumeric(y_pred)
+		y_test_nor = predictToNumeric(y_test)
+
 		y_pred_nor_over = predictToNumeric(y_pred_over)
 		y_test_nor_over = predictToNumeric(y_test_over)
 
